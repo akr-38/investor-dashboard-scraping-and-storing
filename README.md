@@ -8,7 +8,25 @@ This is just a part of the whole investor dashboard project: **[Investor Dashboa
 
   * **Language:** Python
   * **Database:** PostgreSQL (Supabase)
-  * **Libraries:** `alembic`, `sqlalchemy`, `pandas`, `selenium`, `beautifulsoup4`, `psycopg2`, `python-dotenv`
+  * **Libraries:** `alembic`, `sqlalchemy`, `pandas`, `selenium`, `psycopg2`, `python-dotenv`
+
+-----
+
+## 🔍 Data Retrieval and Processing Logic
+
+This project uses an automated pipeline to handle data from the Vahan Dashboard and prepare it for the database. The process is as follows:
+<img width="923" height="283" alt="{3A9F71E8-4D94-47E7-AFEF-566161BEDE9C}" src="https://github.com/user-attachments/assets/ec919161-3ce9-4771-9174-0427d9426290" />
+
+1.  **Web Scraping:** The script uses **Selenium** to programmatically navigate the Vahan Dashboard. It selects specific values for the `Y-Axis` (Maker) and `X-Axis` (Vehicle Category), chooses the `Year`, and then iterates through each month.
+2.  **Data Extraction:** After selecting each month and clicking the "Refresh" button, **Selenium** is used to extract the relevant data from the webpage.
+3.  **Local Storage:** The extracted data for each month is temporarily stored as a CSV file in the repository's directory.
+4.  **Data Processing:** The script then reads the CSVs and processes the raw data. It aggregates the registration counts for various categories (e.g., summing all `2W` sub-categories into a single `2W` count).
+5.  **Quarterly Aggregation:** Monthly data is grouped into quarters, with the final aggregated count for `2W`, `3W`, and `4W` registrations for that quarter.
+6.  **Database Insertion:** The cleaned, aggregated quarterly data is then inserted into the `registration_stats` table in the PostgreSQL database.
+
+This fully automated process ensures a consistent and reliable data source for the backend API.
+
+-----
 
 ## 🛠️ Prerequisites
 
@@ -37,7 +55,7 @@ Create and activate a virtual environment to manage project dependencies.
 
 ```bash
 python -m venv venv
-source venv/bin/activate   # On Windows, use `venv\Scripts\activate`
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 ```
 
 ### Step 3: Install Dependencies
@@ -75,8 +93,6 @@ Next, seed the `vehicle_categories` table with the initial data.
 python scripts/seed_categories.py
 ```
 
-This will populate the database with vehicle categories, as shown in this table:
-
 ### Step 6: Update the Scraper Configuration
 
 To ensure the scraper works correctly, you need to update a specific line of code in the `fetching_and_storing_csv.py` file with the correct element ID of the refresh button from the Vahan Dashboard.
@@ -93,5 +109,4 @@ Once the database is set up and the scraper is configured, you can run the main 
 python main.py
 ```
 
-The script will handle the scraping and store the processed data in the `registration_stats` table of your database. The final data schema will look like this:
-A sample of the stored data is shown below:
+The script will handle the scraping and store the processed data in the `registration_stats` table of your database.
